@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+electron/node_modules/
+
+# Build output
+frontend/dist/
+dist-electron/
+
+# Data (user uploads and database — not committed)
+uploads/
+data/
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/

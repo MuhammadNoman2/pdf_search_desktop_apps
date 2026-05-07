@@ -1,0 +1,86 @@
+{
+  "name": "pdf-search-app",
+  "version": "1.0.0",
+  "description": "100% offline PDF search with OCR",
+  "main": "main.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "web": "node server.js",
+    "electron:dev": "ELECTRON_DEV=true electron .",
+    "electron:build-frontend": "cd ../frontend && npm run build",
+    "electron:pack": "electron-builder --dir",
+    "electron:dist": "npm run electron:build-frontend && npm run prebuild && electron-builder",
+    "prebuild": "rm -rf node_modules/pdfjs-dist/node_modules/canvas",
+    "postinstall": "electron-rebuild",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.pdfsearch.local",
+    "productName": "PDF Search",
+    "directories": {
+      "output": "../dist-electron"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "services/**/*",
+      "tessdata/**/*",
+      "node_modules/**/*",
+      "!node_modules/electron/**/*",
+      "!node_modules/electron-builder/**/*",
+      "!node_modules/@electron/**/*",
+      "!node_modules/pdfjs-dist/node_modules/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist",
+        "filter": ["**/*"]
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "tessdata",
+        "to": "tessdata",
+        "filter": ["**/*"]
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**",
+      "node_modules/canvas/**",
+      "node_modules/tesseract.js/**",
+      "node_modules/pdfjs-dist/**"
+    ],
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "canvas": "^3.2.3",
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "multer": "^2.1.1",
+    "pdf-parse": "^1.1.4",
+    "pdfjs-dist": "^3.11.174",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
+    "electron": "^41.5.0",
+    "electron-builder": "^26.8.1"
+  }
+}

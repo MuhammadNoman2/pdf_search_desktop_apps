@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend deps & build
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - name: Install electron deps
+        working-directory: electron
+        run: npm ci
+
+      - name: Remove nested canvas (pdfjs-dist optional dep)
+        working-directory: electron
+        run: rm -rf node_modules/pdfjs-dist/node_modules/canvas
+
+      - name: Build macOS DMG
+        working-directory: electron
+        run: npx electron-builder --mac --x64 --arm64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Search-macOS
+          path: dist-electron/*.dmg
+
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend deps & build
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - name: Install electron deps
+        working-directory: electron
+        run: npm ci
+
+      - name: Remove nested canvas (pdfjs-dist optional dep)
+        working-directory: electron
+        run: |
+          if (Test-Path "node_modules/pdfjs-dist/node_modules/canvas") {
+            Remove-Item -Recurse -Force "node_modules/pdfjs-dist/node_modules/canvas"
+          }
+        shell: pwsh
+
+      - name: Build Windows EXE
+        working-directory: electron
+        run: npx electron-builder --win --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Search-Windows
+          path: dist-electron/*.exe
