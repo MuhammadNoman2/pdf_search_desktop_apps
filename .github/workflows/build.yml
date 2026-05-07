@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install frontend deps & build
         working-directory: frontend
@@ -24,13 +24,9 @@ jobs:
         working-directory: electron
         run: npm ci
 
-      - name: Remove nested canvas (pdfjs-dist optional dep)
-        working-directory: electron
-        run: rm -rf node_modules/pdfjs-dist/node_modules/canvas
-
       - name: Build macOS DMG
         working-directory: electron
-        run: npx electron-builder --mac --x64 --arm64
+        run: npx electron-builder --mac --x64 --arm64 --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -48,7 +44,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install frontend deps & build
         working-directory: frontend
@@ -58,17 +54,9 @@ jobs:
         working-directory: electron
         run: npm ci
 
-      - name: Remove nested canvas (pdfjs-dist optional dep)
-        working-directory: electron
-        run: |
-          if (Test-Path "node_modules/pdfjs-dist/node_modules/canvas") {
-            Remove-Item -Recurse -Force "node_modules/pdfjs-dist/node_modules/canvas"
-          }
-        shell: pwsh
-
       - name: Build Windows EXE
         working-directory: electron
-        run: npx electron-builder --win --x64
+        run: npx electron-builder --win --x64 --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
