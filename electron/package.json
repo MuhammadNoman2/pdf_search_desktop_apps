@@ -18,6 +18,7 @@
   "build": {
     "appId": "com.pdfsearch.local",
     "productName": "PDF Search",
+    "publish": null,
     "directories": {
       "output": "../dist-electron"
     },
