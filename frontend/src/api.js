@@ -4,9 +4,11 @@ const isElectron = typeof window !== "undefined" && !!window.api?.isElectron;
 // ── Upload ────────────────────────────────────────────────────────────────────
 export async function uploadPDFs(files) {
   if (isElectron) {
-    // Electron sets file.path on File objects from both drag-drop and <input type="file">
-    // Send paths only — main process reads files directly (no binary IPC transfer)
-    const fileData = [...files].map(f => ({ name: f.name, path: f.path }));
+    // Read file contents in the renderer and send as ArrayBuffer via IPC.
+    // This avoids relying on file.path, which is unreliable in packaged Electron builds.
+    const fileData = await Promise.all(
+      [...files].map(async f => ({ name: f.name, buffer: await f.arrayBuffer() }))
+    );
     return window.api.uploadPDFs(fileData);
   }
   const form = new FormData();

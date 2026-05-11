@@ -66,17 +66,16 @@ app.on("window-all-closed", () => {
 });
 
 // ── IPC: Upload PDFs ──────────────────────────────────────────────────────────
-// Receives: [{ name: string, path: string }]  — paths set by Electron on File objects
+// Receives: [{ name: string, buffer: ArrayBuffer }]
 ipcMain.handle("pdf:upload", async (_event, files) => {
   const results = [];
 
-  for (const { name, path: srcPath } of files) {
+  for (const { name, buffer } of files) {
     const safeName = name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const destPath = path.join(UPLOADS_DIR, safeName);
 
     try {
-      // Copy from wherever the user picked/dropped it into our managed uploads folder
-      if (srcPath !== destPath) fs.copyFileSync(srcPath, destPath);
+      fs.writeFileSync(destPath, Buffer.from(buffer));
       const result = await parsePDF(destPath);
       results.push({ fileName: result.fileName, pages: result.pages, ocr: result.ocr, status: "ok" });
     } catch (err) {

@@ -5,7 +5,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("api", {
   isElectron: true,
 
-  // Upload PDFs: accepts [{ name, buffer }]
+  // Upload PDFs: accepts [{ name: string, buffer: ArrayBuffer }]
   uploadPDFs: (files) => ipcRenderer.invoke("pdf:upload", files),
 
   // Full-text search
